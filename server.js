@@ -11,10 +11,20 @@ app.use(express.urlencoded({ extended: false }))
 
 app.use(cors())
 
-mongoose.connect(process.env.DB_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.DB_URL)
+    console.log(`MongoDB Connected: ${conn.connection.host}`)
+  } catch (error) {
+    console.log(error)
+    process.exit(1)
+  }
+}
+
+// mongoose.connect(process.env.DB_URL, {
+//   useNewUrlParser: true,
+//   useUnifiedTopology: true,
+// })
 
 const StockSchema = new mongoose.Schema({
   name: String,
@@ -42,6 +52,8 @@ app.get('/api/price/:name', async (req, res) => {
   res.json({ name, price: stock.price })
 })
 
-app.listen(PORT, () => {
-  console.log(`Server is running on PORT : ${PORT}`)
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log('listening for requests')
+  })
 })
