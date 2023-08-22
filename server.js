@@ -28,7 +28,7 @@ const connectDB = async () => {
 
 const StockSchema = new mongoose.Schema({
   name: String,
-  price: Number,
+  price: [Number],
 })
 
 const Stock = mongoose.model('Stock', StockSchema)
@@ -40,16 +40,16 @@ app.get('/api/price/:name', async (req, res) => {
   let stock = await Stock.findOne({ name })
 
   if (stock) {
-    stock.price = Math.random() * 1000
+    stock.price.push(Math.random() * 1000)
     await stock.save()
   } else {
     stock = await Stock.create({
       name,
-      price: Math.random() * 1000,
+      price: [Math.random() * 1000],
     })
   }
 
-  res.json({ name, price: stock.price })
+  res.json({ name, price: stock.price.slice(-5) })
 })
 
 connectDB().then(() => {
